@@ -38,7 +38,7 @@ struct ContentView: View {
             Spacer()
             VStack (spacing:10){
                 // 添加视频按钮
-                Button("Add Video") {
+                Button("添加视频") {
                     openVideoFile()
                 }
                 
@@ -60,7 +60,8 @@ struct ContentView: View {
                         }
                     }
                 }
-                .frame(width: 200)
+                .frame(width: 225)
+                .cornerRadius(10)
             }
             .padding(10)
             
@@ -69,6 +70,8 @@ struct ContentView: View {
                             .frame(width: 0, height: 0)
                             .focusable(true)
         }
+        .padding([.top,.bottom],8)
+        .frame(minWidth: 1100, minHeight: 500)
         .onAppear {
                     DispatchQueue.main.async {
                         NSApp.keyWindow?.makeFirstResponder(NSApp.keyWindow?.contentView?.subviews.last { $0 is KeyPressHandlingNSView })
