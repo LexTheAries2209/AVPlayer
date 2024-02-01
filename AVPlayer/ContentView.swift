@@ -9,9 +9,6 @@ import SwiftUI
 import AVKit
 import AVFoundation
 
-
-
-
 struct ContentView: View {
     @State private var players: [AVPlayer] = []
     @State private var selectedPlayerIndex: Int = 0
@@ -34,7 +31,7 @@ struct ContentView: View {
                         players[selectedPlayerIndex].pause()
                     }
                 Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
-                        .padding(.top, 5)
+                    .padding(.top, 5)
             } else {
                 Text("列表中无视频")
             }
@@ -69,17 +66,17 @@ struct ContentView: View {
             .padding(10)
             
             // 添加 KeyPressHandlingView
-                        KeyPressHandlingView(onKeyPress: handleKeyPress)
-                            .frame(width: 0, height: 0)
-                            .focusable(true)
+            KeyPressHandlingView(onKeyPress: handleKeyPress)
+                .frame(width: 0, height: 0)
+                .focusable(true)
         }
         .padding([.top,.bottom],8)
         .frame(minWidth: 1100, minHeight: 500)
         .onAppear {
-                    DispatchQueue.main.async {
-                        NSApp.keyWindow?.makeFirstResponder(NSApp.keyWindow?.contentView?.subviews.last { $0 is KeyPressHandlingNSView })
-                    }
-                }
+            DispatchQueue.main.async {
+                NSApp.keyWindow?.makeFirstResponder(NSApp.keyWindow?.contentView?.subviews.last { $0 is KeyPressHandlingNSView })
+            }
+        }
     }
     
     // 使用NSOpenPanel打开文件选择器
@@ -102,7 +99,7 @@ struct ContentView: View {
         let asset = AVAsset(url: url)
         let playerItem = AVPlayerItem(asset: asset)
         let player = AVPlayer(playerItem: playerItem)
-
+        
         // 异步加载视频属性
         let keys = ["duration", "tracks"]
         asset.loadValuesAsynchronously(forKeys: keys) {
@@ -117,7 +114,7 @@ struct ContentView: View {
                     return
                 }
             }
-
+            
             // 检查所有需要的属性是否加载成功
             if allKeysLoaded {
                 // 时长和轨道都已经加载，可以继续处理
@@ -128,7 +125,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     func loadVideoTracks(for asset: AVAsset, player: AVPlayer, videoURL: URL) {
         guard let track = asset.tracks(withMediaType: .video).first else { return }
         let naturalSize = track.naturalSize
@@ -166,51 +163,51 @@ extension ContentView {
     }
     
     func togglePlayPause() {
-            // 检查 selectedPlayerIndex 是否在 players 数组的范围内
-            if selectedPlayerIndex < players.count {
-                let currentPlayer = players[selectedPlayerIndex]
-                if currentPlayer.rate != 0 {
-                    currentPlayer.pause()
-                } else {
-                    currentPlayer.play()
-                }
+        // 检查 selectedPlayerIndex 是否在 players 数组的范围内
+        if selectedPlayerIndex < players.count {
+            let currentPlayer = players[selectedPlayerIndex]
+            if currentPlayer.rate != 0 {
+                currentPlayer.pause()
             } else {
-                // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
-                print("Error: selectedPlayerIndex is out of range for players array.")
+                currentPlayer.play()
             }
+        } else {
+            // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
+            print("Error: selectedPlayerIndex is out of range for players array.")
         }
+    }
     
     func changePlaybackRate(decrement: Bool) {
-            // 检查 selectedPlayerIndex 是否在 players 数组的范围内
-            if selectedPlayerIndex < players.count {
-                let currentPlayer = players[selectedPlayerIndex]
-                if decrement {
-                    // 倒退播放
-                    playbackSpeedIndex -= 1
-                    if playbackSpeedIndex < 0 {
-                        playbackSpeedIndex = playbackSpeeds.count - 1 // 循环到最大的倒退速度
-                    }
-                    currentPlayer.rate = -playbackSpeeds[playbackSpeedIndex]
-                } else {
-                    // 正向播放
-                    playbackSpeedIndex += 1
-                    if playbackSpeedIndex >= playbackSpeeds.count {
-                        playbackSpeedIndex = 0 // 循环回到1倍速
-                    }
-                    currentPlayer.rate = playbackSpeeds[playbackSpeedIndex]
+        // 检查 selectedPlayerIndex 是否在 players 数组的范围内
+        if selectedPlayerIndex < players.count {
+            let currentPlayer = players[selectedPlayerIndex]
+            if decrement {
+                // 倒退播放
+                playbackSpeedIndex -= 1
+                if playbackSpeedIndex < 0 {
+                    playbackSpeedIndex = playbackSpeeds.count - 1 // 循环到最大的倒退速度
                 }
+                currentPlayer.rate = -playbackSpeeds[playbackSpeedIndex]
             } else {
-                // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
-                print("Error: selectedPlayerIndex is out of range for players array.")
+                // 正向播放
+                playbackSpeedIndex += 1
+                if playbackSpeedIndex >= playbackSpeeds.count {
+                    playbackSpeedIndex = 0 // 循环回到1倍速
+                }
+                currentPlayer.rate = playbackSpeeds[playbackSpeedIndex]
             }
+        } else {
+            // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
+            print("Error: selectedPlayerIndex is out of range for players array.")
         }
+    }
 }
 
 
 // NSViewRepresentable to handle key presses
 struct KeyPressHandlingView: NSViewRepresentable {
     var onKeyPress: (NSEvent) -> Void
-
+    
     func makeNSView(context: Context) -> NSView {
         let view = KeyPressHandlingNSView()
         view.onKeyPress = onKeyPress
@@ -219,23 +216,23 @@ struct KeyPressHandlingView: NSViewRepresentable {
         }
         return view
     }
-
-
+    
+    
     func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
 // NSView subclass that can become first responder and handle key presses
 class KeyPressHandlingNSView: NSView {
     var onKeyPress: ((NSEvent) -> Void)?
-
+    
     override var acceptsFirstResponder: Bool { true }
-
+    
     override func keyDown(with event: NSEvent) {
         print("Key pressed: \(event.characters ?? "")")
         onKeyPress?(event)
     }
-
-
+    
+    
     override func becomeFirstResponder() -> Bool {
         true
     }
