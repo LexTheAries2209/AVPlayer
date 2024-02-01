@@ -17,7 +17,8 @@ struct ContentView: View {
     @State private var selectedPlayerIndex: Int = 0
     @State private var videoAspectRatios: [CGSize] = []
     @State private var videoNames: [String] = []
-    @State private var playbackRates: [Float] = []
+    @State private var playbackSpeedIndex: Int = 0 // 新的属性来跟踪播放速度状态
+    let playbackSpeeds: [Float] = [1, 2, 4, 8, 16, 32, 64] // 定义播放速度的数组
     
     var body: some View {
         HStack {
@@ -32,8 +33,10 @@ struct ContentView: View {
                     .onDisappear {
                         players[selectedPlayerIndex].pause()
                     }
+                Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
+                        .padding(.top, 5)
             } else {
-                Text("No videos available")
+                Text("列表中无视频")
             }
             Spacer()
             VStack (spacing:10){
@@ -120,13 +123,11 @@ struct ContentView: View {
                 // 时长和轨道都已经加载，可以继续处理
                 DispatchQueue.main.async { // 确保在主线程更新 UI
                     self.loadVideoTracks(for: asset, player: player, videoURL: url)
-                    self.playbackRates.append(1.0) // 添加一个初始播放速率值，例如 1.0 表示正常速度
+                    player.rate = playbackSpeeds[playbackSpeedIndex]
                 }
             }
         }
     }
-
-
 
     func loadVideoTracks(for asset: AVAsset, player: AVPlayer, videoURL: URL) {
         guard let track = asset.tracks(withMediaType: .video).first else { return }
@@ -142,9 +143,6 @@ struct ContentView: View {
         }
     }
 }
-
-
-
 
 extension ContentView {
     
@@ -168,39 +166,44 @@ extension ContentView {
     }
     
     func togglePlayPause() {
-        // 检查 selectedPlayerIndex 是否在 players 数组的范围内
-        if selectedPlayerIndex < players.count {
-            let currentPlayer = players[selectedPlayerIndex]
-            // 检查 selectedPlayerIndex 是否在 playbackRates 数组的范围内
-            if selectedPlayerIndex < playbackRates.count {
-                if currentPlayer.rate == 0 {
-                    currentPlayer.rate = playbackRates[selectedPlayerIndex] // 恢复之前的播放速度
-                    currentPlayer.play()
-                } else {
-                    playbackRates[selectedPlayerIndex] = currentPlayer.rate // 存储当前的播放速度
+            // 检查 selectedPlayerIndex 是否在 players 数组的范围内
+            if selectedPlayerIndex < players.count {
+                let currentPlayer = players[selectedPlayerIndex]
+                if currentPlayer.rate != 0 {
                     currentPlayer.pause()
+                } else {
+                    currentPlayer.play()
                 }
             } else {
-                // 如果 selectedPlayerIndex 超出了 playbackRates 的范围，您需要处理这种情况
-                // 例如，您可以添加一个新的元素或者记录一个错误
-                print("Error: selectedPlayerIndex is out of range for playbackRates array.")
+                // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
+                print("Error: selectedPlayerIndex is out of range for players array.")
             }
-        } else {
-            // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
-            print("Error: selectedPlayerIndex is out of range for players array.")
         }
-    }
     
     func changePlaybackRate(decrement: Bool) {
-        let currentPlayer = players[selectedPlayerIndex]
-        if currentPlayer.rate != 0 {
-            let step: Float = 0.1 // 定义每次变化的步进值
-            var newRate = currentPlayer.rate + (decrement ? -step : step)
-            newRate = max(0.5, min(newRate, 2.0)) // 限制播放速度在 0.5x 到 2x 之间
-            currentPlayer.rate = newRate
-            playbackRates[selectedPlayerIndex] = newRate
+            // 检查 selectedPlayerIndex 是否在 players 数组的范围内
+            if selectedPlayerIndex < players.count {
+                let currentPlayer = players[selectedPlayerIndex]
+                if decrement {
+                    // 倒退播放
+                    playbackSpeedIndex -= 1
+                    if playbackSpeedIndex < 0 {
+                        playbackSpeedIndex = playbackSpeeds.count - 1 // 循环到最大的倒退速度
+                    }
+                    currentPlayer.rate = -playbackSpeeds[playbackSpeedIndex]
+                } else {
+                    // 正向播放
+                    playbackSpeedIndex += 1
+                    if playbackSpeedIndex >= playbackSpeeds.count {
+                        playbackSpeedIndex = 0 // 循环回到1倍速
+                    }
+                    currentPlayer.rate = playbackSpeeds[playbackSpeedIndex]
+                }
+            } else {
+                // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
+                print("Error: selectedPlayerIndex is out of range for players array.")
+            }
         }
-    }
 }
 
 
