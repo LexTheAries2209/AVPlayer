@@ -19,14 +19,18 @@ struct ContentView: View {
     
     var body: some View {
         HStack {
+            
             Spacer()
+            
             // 视频播放器部分
             if !players.isEmpty {
                 VideoPlayer(player: players[selectedPlayerIndex])
                     .aspectRatio(videoAspectRatios[selectedPlayerIndex], contentMode: .fit)
-                    .onAppear {
-                        players[selectedPlayerIndex].play()
-                    }
+                
+                //移除添加视频后立刻播放的按钮以修复删除视频后可能的错误
+//                    .onAppear {
+//                        players[selectedPlayerIndex].play()
+//                    }
                     .onDisappear {
                         players[selectedPlayerIndex].pause()
                     }
@@ -35,7 +39,10 @@ struct ContentView: View {
             } else {
                 Text("列表中无视频")
             }
+            
             Spacer()
+            
+            //操作按钮
             VStack (spacing:10){
                 // 添加视频按钮
                 Button("添加视频") {
@@ -46,9 +53,7 @@ struct ContentView: View {
                 List {
                     ForEach(Array(zip(players.indices, videoNames)), id: \.0) { index, name in
                         Button(action: {
-                            players[selectedPlayerIndex].pause()
-                            selectedPlayerIndex = index
-                            players[selectedPlayerIndex].play()
+                            self.selectVideo(at: index)
                         }) {
                             HStack {
                                 Text(name)
@@ -58,6 +63,16 @@ struct ContentView: View {
                                 }
                             }
                         }
+                        
+                        // 视频列表二级菜单
+                        .contextMenu {
+                            Button("删除视频") {
+                                self.removeVideoPlayer(at: index)
+                            }
+                            Button("查看元数据") {
+                                self.showMetadata(for: index)
+                            }
+                        }
                     }
                 }
                 .frame(width: 225)
@@ -65,7 +80,7 @@ struct ContentView: View {
             }
             .padding(10)
             
-            // 添加 KeyPressHandlingView
+            // 按键提示
             KeyPressHandlingView(onKeyPress: handleKeyPress)
                 .frame(width: 0, height: 0)
                 .focusable(true)
@@ -79,7 +94,7 @@ struct ContentView: View {
         }
     }
     
-    // 使用NSOpenPanel打开文件选择器
+    // 文件选择器
     func openVideoFile() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
@@ -120,12 +135,14 @@ struct ContentView: View {
                 // 时长和轨道都已经加载，可以继续处理
                 DispatchQueue.main.async { // 确保在主线程更新 UI
                     self.loadVideoTracks(for: asset, player: player, videoURL: url)
-                    player.rate = playbackSpeeds[playbackSpeedIndex]
+                    // 不自动播放视频
+                    // player.rate = playbackSpeeds[playbackSpeedIndex]
                 }
             }
         }
     }
     
+    //视频加载
     func loadVideoTracks(for asset: AVAsset, player: AVPlayer, videoURL: URL) {
         guard let track = asset.tracks(withMediaType: .video).first else { return }
         let naturalSize = track.naturalSize
@@ -143,7 +160,7 @@ struct ContentView: View {
 
 extension ContentView {
     
-    // 处理键盘事件的方法
+    // 空格、J、K、L控制播放
     func handleKeyPress(event: NSEvent) {
         guard let characters = event.characters else { return }
         for char in characters {
@@ -162,14 +179,15 @@ extension ContentView {
         }
     }
     
+    //暂停功能
     func togglePlayPause() {
         // 检查 selectedPlayerIndex 是否在 players 数组的范围内
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
-            if currentPlayer.rate != 0 {
-                currentPlayer.pause()
-            } else {
+            if currentPlayer.rate == 0 {
                 currentPlayer.play()
+            } else {
+                currentPlayer.pause()
             }
         } else {
             // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
@@ -177,6 +195,7 @@ extension ContentView {
         }
     }
     
+    //加减速循环
     func changePlaybackRate(decrement: Bool) {
         // 检查 selectedPlayerIndex 是否在 players 数组的范围内
         if selectedPlayerIndex < players.count {
@@ -201,6 +220,41 @@ extension ContentView {
             print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
+    
+    //二级菜单选择视频
+    func selectVideo(at index: Int) {
+        players[selectedPlayerIndex].pause()
+        selectedPlayerIndex = index
+        //不自动播放新视频
+        //players[selectedPlayerIndex].play()
+    }
+
+    //删除视频
+    func removeVideoPlayer(at index: Int) {
+        players[index].pause() // 暂停当前播放器
+        players.remove(at: index) // 从数组中删除播放器
+        videoAspectRatios.remove(at: index) // 删除对应的视频宽高比
+        videoNames.remove(at: index) // 删除视频名称
+        
+        // 如果删除了当前选中的视频，需要更新selectedPlayerIndex
+        if selectedPlayerIndex >= players.count {
+            selectedPlayerIndex = players.indices.last ?? 0
+        }
+        
+        // 如果列表中还有其他视频，播放下一个视频
+        if !players.isEmpty {
+            players[selectedPlayerIndex].play()
+        }
+    }
+
+    //视频元数据
+    func showMetadata(for index: Int) {
+        // 这里你可以实现显示元数据的逻辑
+        // 例如，你可以创建一个新的视图来展示元数据，并将其推送到导航堆栈中
+        // 由于这里没有完整的上下文，我将只打印出视频名称
+        print("元数据 for \(videoNames[index])")
+    }
+
 }
 
 
