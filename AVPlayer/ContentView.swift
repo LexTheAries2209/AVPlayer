@@ -16,8 +16,16 @@ struct ContentView: View {
     @State private var videoNames: [String] = []
     @State private var playbackSpeedIndex: Int = 0
     @State private var lastKeyPress: String? = nil
+    @State private var playbackMode: PlaybackMode = .sequential
     // 定义播放速度的数组
     let playbackSpeeds: [Float] = [1, 2, 4, 8, 16, 32, 64]
+    enum PlaybackMode: String, CaseIterable {
+        case sequential = "顺序播放"
+        case loopSingle = "单次循环"
+        case single = "单次播放"
+        case random = "随机播放"
+    }
+
 
     
     var body: some View {
@@ -25,32 +33,39 @@ struct ContentView: View {
             
             Spacer()
             
-            // 视频播放器部分
-            if !players.isEmpty {
-                VideoPlayer(player: players[selectedPlayerIndex])
-                    .aspectRatio(videoAspectRatios[selectedPlayerIndex], contentMode: .fit)
-                
-                //移除添加视频后立刻播放的按钮以修复删除视频后可能的错误
-//                    .onAppear {
-//                        players[selectedPlayerIndex].play()
-//                    }
-                    .onDisappear {
-                        players[selectedPlayerIndex].pause()
-                    }
-                Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
-                    .padding(.top, 5)
-            } else {
-                Text("列表中无视频")
+            VStack (spacing: 5){
+                // 视频播放器部分
+                if !players.isEmpty {
+                    VideoPlayer(player: players[selectedPlayerIndex])
+                        .aspectRatio(videoAspectRatios[selectedPlayerIndex], contentMode: .fit)
+                    
+                    //移除添加视频后立刻播放的按钮以修复删除视频后可能的错误
+                    //                    .onAppear {
+                    //                        players[selectedPlayerIndex].play()
+                    //                    }
+                    
+                        .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: players[selectedPlayerIndex].currentItem)) { _ in
+                            self.playerDidFinishPlaying()
+                        }
+                    Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
+                        .padding(.top, 5)
+                } else {
+                    Text("列表中无视频")
+                }
             }
-            
             Spacer()
             
             //操作按钮
-            VStack (spacing:10){
+            VStack (spacing: 10){
                 // 添加视频按钮
                 Button("添加视频") {
                     openVideoFile()
                 }
+                
+                // 切换播放模式按钮
+                    Button(action: togglePlaybackMode) {
+                        Text("播放模式: \(playbackMode.rawValue)")
+                    }
                 
                 // 视频播放列表部分
                 List {
@@ -194,7 +209,6 @@ extension ContentView {
     func incrementPlaybackRate(reverse: Bool) {
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
-        
             // 根据当前速度找出下一个速度
             playbackSpeedIndex = (playbackSpeedIndex + 1) % playbackSpeeds.count
             currentPlayer.rate = reverse ? -playbackSpeeds[playbackSpeedIndex] : playbackSpeeds[playbackSpeedIndex]
@@ -298,7 +312,47 @@ extension ContentView {
         // 由于这里没有完整的上下文，我将只打印出视频名称
         print("元数据 for \(videoNames[index])")
     }
+    
+    func togglePlaybackMode() {
+        switch playbackMode {
+        case .sequential:
+            playbackMode = .loopSingle
+        case .loopSingle:
+            playbackMode = .single
+        case .single:
+            playbackMode = .random
+        case .random:
+            playbackMode = .sequential
+        }
+    }
+    
+    func playerDidFinishPlaying() {
+        switch playbackMode {
+        case .sequential:
+            // 如果当前视频是列表中的最后一个，则暂停播放
+            if selectedPlayerIndex == players.count - 1 {
+                players[selectedPlayerIndex].pause()
+            } else {
+                // 否则，切换到下一个视频
+                selectedPlayerIndex = (selectedPlayerIndex + 1) % players.count
+                players[selectedPlayerIndex].play()
+            }
+        case .loopSingle:
+            // 重新播放当前视频
+            players[selectedPlayerIndex].seek(to: CMTime.zero) { _ in
+                self.players[self.selectedPlayerIndex].play()
+            }
+        case .single:
+            // 不做任何事情，已经播放完毕
+            break
+        case .random:
+            // 随机选择一个视频播放
+            selectedPlayerIndex = Int.random(in: 0..<players.count)
+            players[selectedPlayerIndex].play()
+        }
+    }
 
+    
 }
 
 // NSViewRepresentable to handle key presses
