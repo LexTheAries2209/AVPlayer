@@ -14,8 +14,11 @@ struct ContentView: View {
     @State private var selectedPlayerIndex: Int = 0
     @State private var videoAspectRatios: [CGSize] = []
     @State private var videoNames: [String] = []
-    @State private var playbackSpeedIndex: Int = 0 // 新的属性来跟踪播放速度状态
-    let playbackSpeeds: [Float] = [1, 2, 4, 8, 16, 32, 64] // 定义播放速度的数组
+    @State private var playbackSpeedIndex: Int = 0
+    @State private var lastKeyPress: String? = nil
+    // 定义播放速度的数组
+    let playbackSpeeds: [Float] = [1, 2, 4, 8, 16, 32, 64]
+
     
     var body: some View {
         HStack {
@@ -167,15 +170,53 @@ extension ContentView {
             switch char {
             case " ":
                 togglePlayPause()
-            case "j":
-                changePlaybackRate(decrement: true) // 减慢播放速度
             case "k":
                 togglePlayPause()
+            case "j":
+                if lastKeyPress == "j" {
+                    incrementPlaybackRate(reverse: true)
+                } else {
+                    setPlaybackRateToOneAndPlay(reverse: true)
+                }
             case "l":
-                changePlaybackRate(decrement: false) // 加快播放速度
+                if lastKeyPress == "l" {
+                    incrementPlaybackRate(reverse: false)
+                } else {
+                    setPlaybackRateToOneAndPlay(reverse: false)
+                }
             default:
                 break
             }
+            lastKeyPress = String(char)
+        }
+    }
+    
+    func incrementPlaybackRate(reverse: Bool) {
+        if selectedPlayerIndex < players.count {
+            let currentPlayer = players[selectedPlayerIndex]
+        
+            // 根据当前速度找出下一个速度
+            playbackSpeedIndex = (playbackSpeedIndex + 1) % playbackSpeeds.count
+            currentPlayer.rate = reverse ? -playbackSpeeds[playbackSpeedIndex] : playbackSpeeds[playbackSpeedIndex]
+            if currentPlayer.timeControlStatus != .playing {
+                currentPlayer.play() // 如果当前状态不是播放，则开始播放
+            }
+        } else {
+            print("Error: selectedPlayerIndex is out of range for players array.")
+        }
+    }
+
+    func setPlaybackRateToOneAndPlay(reverse: Bool) {
+        if selectedPlayerIndex < players.count {
+            let currentPlayer = players[selectedPlayerIndex]
+            // 重置播放速度索引为一倍速
+            playbackSpeedIndex = playbackSpeeds.firstIndex(of: 1) ?? 0
+            currentPlayer.rate = reverse ? -playbackSpeeds[playbackSpeedIndex] : playbackSpeeds[playbackSpeedIndex]
+            if currentPlayer.timeControlStatus != .playing {
+                currentPlayer.play() // 如果当前状态是暂停，则开始播放
+            }
+        } else {
+            print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
     
@@ -225,6 +266,8 @@ extension ContentView {
     func selectVideo(at index: Int) {
         players[selectedPlayerIndex].pause()
         selectedPlayerIndex = index
+        // 选择新视频时重置最后一个按键
+        lastKeyPress = nil
         //不自动播放新视频
         //players[selectedPlayerIndex].play()
     }
@@ -235,6 +278,7 @@ extension ContentView {
         players.remove(at: index) // 从数组中删除播放器
         videoAspectRatios.remove(at: index) // 删除对应的视频宽高比
         videoNames.remove(at: index) // 删除视频名称
+        lastKeyPress = nil // 重置最后一个按键
         
         // 如果删除了当前选中的视频，需要更新selectedPlayerIndex
         if selectedPlayerIndex >= players.count {
@@ -257,7 +301,6 @@ extension ContentView {
 
 }
 
-
 // NSViewRepresentable to handle key presses
 struct KeyPressHandlingView: NSViewRepresentable {
     var onKeyPress: (NSEvent) -> Void
@@ -270,7 +313,6 @@ struct KeyPressHandlingView: NSViewRepresentable {
         }
         return view
     }
-    
     
     func updateNSView(_ nsView: NSView, context: Context) {}
 }
@@ -285,7 +327,6 @@ class KeyPressHandlingNSView: NSView {
         print("Key pressed: \(event.characters ?? "")")
         onKeyPress?(event)
     }
-    
     
     override func becomeFirstResponder() -> Bool {
         true
