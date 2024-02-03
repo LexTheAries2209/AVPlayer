@@ -10,6 +10,7 @@ import AVKit
 import AVFoundation
 
 struct ContentView: View {
+    
     @State private var players: [AVPlayer] = []
     @State private var selectedPlayerIndex: Int = 0
     @State private var videoAspectRatios: [CGSize] = []
@@ -30,8 +31,6 @@ struct ContentView: View {
         case random = "随机播放"
     }
 
-
-    
     var body: some View {
         ZStack {
             
@@ -39,7 +38,7 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                VStack (spacing: 5){
+                VStack {
                     // 视频播放器部分
                     if !players.isEmpty {
                         VideoPlayer(player: players[selectedPlayerIndex])
@@ -47,8 +46,6 @@ struct ContentView: View {
                             .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: players[selectedPlayerIndex].currentItem)) { _ in
                                 self.playerDidFinishPlaying()
                             }
-                        Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
-                            .padding(.top, 5)
                     } else {
                         Text("列表中无视频")
                     }
@@ -100,21 +97,15 @@ struct ContentView: View {
                     .frame(width: 0, height: 0)
                     .focusable(true)
             }
-            .padding([.top,.bottom],8)
-            .frame(minWidth: 1100, minHeight: 500)
+            .padding([.top,.bottom],5)
+            .frame(minWidth: 1100, minHeight: 480)
             .onAppear {
                 DispatchQueue.main.async {
                     NSApp.keyWindow?.makeFirstResponder(NSApp.keyWindow?.contentView?.subviews.last { $0 is KeyPressHandlingNSView })
                 }
             }
+            
             HStack {
-                Button(action: {
-                    self.showMetadataPanel.toggle()
-                }) {
-                    Image(systemName: showMetadataPanel ? "info.circle.fill" : "info.circle")
-                        .padding()
-                        .accessibilityLabel("Show/Hide Metadata Panel")
-                }
                 
                 // 条件视图，显示选中视频的元数据
                 if showMetadataPanel && selectedPlayerIndex < players.count {
@@ -126,12 +117,42 @@ struct ContentView: View {
                         videoCodec: "获取视频编码方式",
                         colorMatrix: "获取色彩矩阵信息"
                     )
-                    .frame(width: 300)
                     .transition(.slide)
                 }
+                Spacer()
+            }
+            
+            HStack {
+                
+                VStack {
+                    
+                    //显示元数据按钮
+                    Button(action: {
+                        self.showMetadataPanel.toggle()
+                    }) {
+                        Image(systemName: showMetadataPanel ? "info.circle.fill" : "info.circle")
+                            .padding()
+                            .accessibilityLabel("Show/Hide Metadata Panel")
+                    }
+                    
+                    Spacer()
+                }
+                .padding([.top,.leading],10)
+                
+                VStack {
+                    
+                    //显示当前播放速度
+                    Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
+                        .padding(1)
+                        .padding([.leading,.trailing],3)
+                        .cornerRadius(5)
+                    Spacer()
+                }
+                .padding(.top,10)
                 
                 Spacer()
             }
+            .padding([.leading,.top],3)
         }
     }
     
@@ -270,7 +291,6 @@ extension ContentView {
                 currentPlayer.pause()
             }
         } else {
-            // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
             print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
@@ -296,7 +316,6 @@ extension ContentView {
                 currentPlayer.rate = playbackSpeeds[playbackSpeedIndex]
             }
         } else {
-            // 如果 selectedPlayerIndex 超出了 players 的范围，您需要处理这种情况
             print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
@@ -307,8 +326,6 @@ extension ContentView {
         selectedPlayerIndex = index
         // 选择新视频时重置最后一个按键
         lastKeyPress = nil
-        //不自动播放新视频
-        //players[selectedPlayerIndex].play()
     }
 
     //删除视频
@@ -330,6 +347,7 @@ extension ContentView {
         }
     }
     
+    //播放方式选择
     func togglePlaybackMode() {
         switch playbackMode {
         case .sequential:
@@ -343,6 +361,7 @@ extension ContentView {
         }
     }
     
+    //播放方式定义
     func playerDidFinishPlaying() {
         switch playbackMode {
         case .sequential:
@@ -402,6 +421,7 @@ class KeyPressHandlingNSView: NSView {
     }
 }
 
+//元数据视图
 struct MetadataView: View {
     
     let videoName: String
@@ -423,18 +443,29 @@ struct MetadataView: View {
         return hoursString + minutesString + secondsString
     }
 
-    
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("视频名称: \(videoName)")
-            Text("视频分辨率: \(Int(aspectRatio.width))x\(Int(aspectRatio.height))")
-            Text("视频时长: \(formatDuration(duration))")
-            Text("音频编码: \(audioCodec)")
-            Text("视频编码: \(videoCodec)")
-            Text("色彩矩阵: \(colorMatrix)")
-        }
-        .padding()
-        .frame(width: 300, height: 200)
-        .navigationTitle("\(videoName)_Metadata")
+        
+            VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("视频名称: \(videoName)")
+                    Text("视频分辨率: \(Int(aspectRatio.width))x\(Int(aspectRatio.height))")
+                    Text("视频时长: \(formatDuration(duration))")
+                    Text("音频编码: \(audioCodec)")
+                    Text("视频编码: \(videoCodec)")
+                    Text("色彩矩阵: \(colorMatrix)")
+                    Spacer()
+                }
+                .padding(.leading,5)
+                .padding(.top,80)
+            }
+            .frame(width: 200)
+            .background(Color.gray.opacity(0.2))
+            .navigationTitle("\(videoName)_Metadata")
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }
