@@ -8,6 +8,8 @@
 import SwiftUI
 import AVKit
 import AVFoundation
+import CoreMedia
+
 
 struct ContentView: View {
     
@@ -19,7 +21,8 @@ struct ContentView: View {
     @State private var lastKeyPress: String? = nil
     @State private var playbackMode: PlaybackMode = .sequential
     @State private var showMetadataPanel: Bool = false
-
+    @State private var videoMetadata: [VideoMetadata] = []
+    
     // 定义播放速度的数组
     let playbackSpeeds: [Float] = [1, 2, 4, 8, 16, 32, 64]
     
@@ -30,7 +33,16 @@ struct ContentView: View {
         case single = "单次播放"
         case random = "随机播放"
     }
-
+    
+    struct VideoMetadata {
+        var audioCodec: String = ""
+        var videoCodec: String = ""
+        var videoBitRate: Int = 0
+        var videoFrameRate: Float = 0.0
+        var audioBitRate: Int = 0
+        var fileSize: Int64 = 0
+    }
+    
     var body: some View {
         ZStack {
             
@@ -113,9 +125,7 @@ struct ContentView: View {
                         videoName: videoNames[selectedPlayerIndex],
                         aspectRatio: videoAspectRatios[selectedPlayerIndex],
                         duration: players[selectedPlayerIndex].currentItem?.duration ?? CMTime.zero,
-                        audioCodec: "获取音频编码方式",
-                        videoCodec: "获取视频编码方式",
-                        colorMatrix: "获取色彩矩阵信息"
+                        metadata: videoMetadata[selectedPlayerIndex] // 传递元数据
                     )
                     .transition(.slide)
                 }
@@ -182,6 +192,7 @@ struct ContentView: View {
         let keys = ["duration", "tracks"]
         asset.loadValuesAsynchronously(forKeys: keys) {
             var allKeysLoaded = true
+            
             for key in keys {
                 var error: NSError?
                 let status = asset.statusOfValue(forKey: key, error: &error)
@@ -195,11 +206,44 @@ struct ContentView: View {
             
             // 检查所有需要的属性是否加载成功
             if allKeysLoaded {
-                // 时长和轨道都已经加载，可以继续处理
-                DispatchQueue.main.async { // 确保在主线程更新 UI
+                // 确保在主线程更新 UI
+                DispatchQueue.main.async {
                     self.loadVideoTracks(for: asset, player: player, videoURL: url)
-                    // 不自动播放视频
-                    // player.rate = playbackSpeeds[playbackSpeedIndex]
+                    // 创建一个新的VideoMetadata实例
+                    var metadata = VideoMetadata()
+                    // 获取视频轨道
+                    if let videoTrack = asset.tracks(withMediaType: .video).first {
+                        if let formatDescriptions = videoTrack.formatDescriptions as? [CMFormatDescription],
+                           let formatDescription = formatDescriptions.first {
+                            // 使用CMFormatDescriptionGetMediaSubType方法获取视频编码类型
+                            let mediaSubType = CMFormatDescriptionGetMediaSubType(formatDescription)
+                            metadata.videoCodec = FourCharCodeToString(mediaSubType)
+                            metadata.videoBitRate = Int(videoTrack.estimatedDataRate)
+                            metadata.videoFrameRate = videoTrack.nominalFrameRate
+                        }
+                    }
+                    
+                    
+                    // 获取音频轨道
+                    if let audioTrack = asset.tracks(withMediaType: .audio).first {
+                        if let formatDescriptions = audioTrack.formatDescriptions as? [CMFormatDescription],
+                           let formatDescription = formatDescriptions.first {
+                            // 使用CMAudioFormatDescriptionGetStreamBasicDescription方法获取音频流基本描述
+                            if let streamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription) {
+                                // 从streamBasicDescription中获取音频格式信息
+                                metadata.audioBitRate = Int(streamBasicDescription.pointee.mBytesPerPacket * streamBasicDescription.pointee.mFramesPerPacket * 8)
+                            }
+                            // 使用CMFormatDescriptionGetMediaSubType方法获取音频编码类型
+                            let audioCodecType = CMFormatDescriptionGetMediaSubType(formatDescription)
+                            metadata.audioCodec = FourCharCodeToString(audioCodecType)
+                        }
+                    }
+                    
+                    // 获取文件大小
+                    if let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                        metadata.fileSize = Int64(fileSize)
+                    }
+                    self.videoMetadata.append(metadata)
                 }
             }
         }
@@ -265,7 +309,7 @@ extension ContentView {
             print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
-
+    
     func setPlaybackRateToOneAndPlay(reverse: Bool) {
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
@@ -327,7 +371,7 @@ extension ContentView {
         // 选择新视频时重置最后一个按键
         lastKeyPress = nil
     }
-
+    
     //删除视频
     func removeVideoPlayer(at index: Int) {
         players[index].pause() // 暂停当前播放器
@@ -387,6 +431,17 @@ extension ContentView {
             players[selectedPlayerIndex].play()
         }
     }
+    
+    func FourCharCodeToString(_ code: FourCharCode) -> String {
+        let bytes: [CChar] = [
+            CChar((code >> 24) & 0xff),
+            CChar((code >> 16) & 0xff),
+            CChar((code >> 8) & 0xff),
+            CChar(code & 0xff),
+            0
+        ]
+        return String(cString: bytes)
+    }
 }
 
 // NSViewRepresentable to handle key presses
@@ -427,10 +482,8 @@ struct MetadataView: View {
     let videoName: String
     let aspectRatio: CGSize
     let duration: CMTime
-    let audioCodec: String
-    let videoCodec: String
-    let colorMatrix: String
-
+    let metadata: ContentView.VideoMetadata
+    
     // 将CMTime转换为小时、分钟、秒的格式
     func formatDuration(_ duration: CMTime) -> String {
         let totalSeconds = Int(duration.seconds)
@@ -442,30 +495,40 @@ struct MetadataView: View {
         let secondsString = String(format: "%02d秒", seconds)
         return hoursString + minutesString + secondsString
     }
-
+    
+    // 将比特率从bps转换为Mbps并格式化输出
+    func formatBitRate(_ bitRate: Int) -> String {
+        let bitRateMbps = Double(bitRate) / 1_000_000
+        return String(format: "%.2f Mbps", bitRateMbps)
+    }
+    
+    // 将文件大小从字节转换为MB并格式化输出
+    func formatFileSize(_ fileSize: Int64) -> String {
+        let fileSizeMB = Double(fileSize) / 1_000_000
+        return String(format: "%.2f MB", fileSizeMB)
+    }
+    
     var body: some View {
         
-            VStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("视频名称: \(videoName)")
-                    Text("视频分辨率: \(Int(aspectRatio.width))x\(Int(aspectRatio.height))")
-                    Text("视频时长: \(formatDuration(duration))")
-                    Text("音频编码: \(audioCodec)")
-                    Text("视频编码: \(videoCodec)")
-                    Text("色彩矩阵: \(colorMatrix)")
-                    Spacer()
-                }
-                .padding(.leading,5)
-                .padding(.top,80)
+        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text("视频名称: \(videoName)")
+                Text("文件大小: \(formatFileSize(metadata.fileSize))")
+                Text("")
+                Text("视频时长: \(formatDuration(duration))")
+                Text("视频分辨率: \(Int(aspectRatio.width))* \(Int(aspectRatio.height))")
+                Text("视频帧率: \(String(format: "%.3f fps", metadata.videoFrameRate))")
+                Text("视频码率: \(formatBitRate(metadata.videoBitRate))")
+                Text("视频编码: \(metadata.videoCodec.uppercased())")
+                Text("")
+                Text("音频编码: \(metadata.audioCodec.uppercased())")
+                Spacer()
             }
-            .frame(width: 200)
-            .background(Color.gray.opacity(0.2))
-            .navigationTitle("\(videoName)_Metadata")
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+            .padding(.leading,5)
+            .padding(.top,80)
+        }
+        .frame(width: 200)
+        .background(Color.gray.opacity(0.2))
+        .navigationTitle("\(videoName)_Metadata")
     }
 }
