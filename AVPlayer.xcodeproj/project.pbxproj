@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		580F9A0B2B6E0FDA007E1279 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0A2B6E0FDA007E1279 /* AVKit.framework */; };
+		580F9A0D2B6E7892007E1279 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0C2B6E7892007E1279 /* AVFoundation.framework */; };
 		58908EFF2B6A95EB00BFDC5D /* AVPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58908EFE2B6A95EB00BFDC5D /* AVPlayerApp.swift */; };
 		58908F012B6A95EB00BFDC5D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58908F002B6A95EB00BFDC5D /* ContentView.swift */; };
 		58908F032B6A95EC00BFDC5D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58908F022B6A95EC00BFDC5D /* Assets.xcassets */; };
@@ -16,6 +17,7 @@
 
 /* Begin PBXFileReference section */
 		580F9A0A2B6E0FDA007E1279 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		580F9A0C2B6E7892007E1279 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		58908EFB2B6A95EB00BFDC5D /* AVPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58908EFE2B6A95EB00BFDC5D /* AVPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerApp.swift; sourceTree = "<group>"; };
 		58908F002B6A95EB00BFDC5D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -29,6 +31,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				580F9A0D2B6E7892007E1279 /* AVFoundation.framework in Frameworks */,
 				580F9A0B2B6E0FDA007E1279 /* AVKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -39,6 +42,7 @@
 		580F9A092B6E0FDA007E1279 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				580F9A0C2B6E7892007E1279 /* AVFoundation.framework */,
 				580F9A0A2B6E0FDA007E1279 /* AVKit.framework */,
 			);
 			name = Frameworks;

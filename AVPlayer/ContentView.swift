@@ -17,8 +17,12 @@ struct ContentView: View {
     @State private var playbackSpeedIndex: Int = 0
     @State private var lastKeyPress: String? = nil
     @State private var playbackMode: PlaybackMode = .sequential
+    @State private var showMetadataPanel: Bool = false
+
     // 定义播放速度的数组
     let playbackSpeeds: [Float] = [1, 2, 4, 8, 16, 32, 64]
+    
+    //枚举播放模式
     enum PlaybackMode: String, CaseIterable {
         case sequential = "顺序播放"
         case loopSingle = "单次循环"
@@ -29,88 +33,108 @@ struct ContentView: View {
 
     
     var body: some View {
-        HStack {
+        ZStack {
             
-            Spacer()
-            
-            VStack (spacing: 5){
-                // 视频播放器部分
-                if !players.isEmpty {
-                    VideoPlayer(player: players[selectedPlayerIndex])
-                        .aspectRatio(videoAspectRatios[selectedPlayerIndex], contentMode: .fit)
-                    
-                    //移除添加视频后立刻播放的按钮以修复删除视频后可能的错误
-                    //                    .onAppear {
-                    //                        players[selectedPlayerIndex].play()
-                    //                    }
-                    
-                        .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: players[selectedPlayerIndex].currentItem)) { _ in
-                            self.playerDidFinishPlaying()
-                        }
-                    Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
-                        .padding(.top, 5)
-                } else {
-                    Text("列表中无视频")
-                }
-            }
-            Spacer()
-            
-            //操作按钮
-            VStack (spacing: 10){
-                // 添加视频按钮
-                Button("添加视频") {
-                    openVideoFile()
-                }
+            HStack {
                 
-                // 切换播放模式按钮
+                Spacer()
+                
+                VStack (spacing: 5){
+                    // 视频播放器部分
+                    if !players.isEmpty {
+                        VideoPlayer(player: players[selectedPlayerIndex])
+                            .aspectRatio(videoAspectRatios[selectedPlayerIndex], contentMode: .fit)
+                            .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: players[selectedPlayerIndex].currentItem)) { _ in
+                                self.playerDidFinishPlaying()
+                            }
+                        Text("Speed: \(Int(playbackSpeeds[playbackSpeedIndex]))x")
+                            .padding(.top, 5)
+                    } else {
+                        Text("列表中无视频")
+                    }
+                }
+                Spacer()
+                
+                //操作按钮
+                VStack (spacing: 10){
+                    // 添加视频按钮
+                    Button("添加视频") {
+                        openVideoFile()
+                    }
+                    
+                    // 切换播放模式按钮
                     Button(action: togglePlaybackMode) {
                         Text("播放模式: \(playbackMode.rawValue)")
                     }
-                
-                // 视频播放列表部分
-                List {
-                    ForEach(Array(zip(players.indices, videoNames)), id: \.0) { index, name in
-                        Button(action: {
-                            self.selectVideo(at: index)
-                        }) {
-                            HStack {
-                                Text(name)
-                                Spacer()
-                                if selectedPlayerIndex == index {
-                                    Image(systemName: "checkmark")
+                    
+                    // 视频播放列表部分
+                    List {
+                        ForEach(Array(zip(players.indices, videoNames)), id: \.0) { index, name in
+                            Button(action: {
+                                self.selectVideo(at: index)
+                            }) {
+                                HStack {
+                                    Text(name)
+                                    Spacer()
+                                    if selectedPlayerIndex == index {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                            
+                            // 视频列表二级菜单
+                            .contextMenu {
+                                Button("删除视频") {
+                                    self.removeVideoPlayer(at: index)
                                 }
                             }
                         }
-                        
-                        // 视频列表二级菜单
-                        .contextMenu {
-                            Button("删除视频") {
-                                self.removeVideoPlayer(at: index)
-                            }
-                            Button("查看元数据") {
-                                self.showMetadata(for: index)
-                            }
-                        }
                     }
+                    .frame(width: 225)
+                    .cornerRadius(10)
                 }
-                .frame(width: 225)
-                .cornerRadius(10)
+                .padding(10)
+                
+                // 按键提示
+                KeyPressHandlingView(onKeyPress: handleKeyPress)
+                    .frame(width: 0, height: 0)
+                    .focusable(true)
             }
-            .padding(10)
-            
-            // 按键提示
-            KeyPressHandlingView(onKeyPress: handleKeyPress)
-                .frame(width: 0, height: 0)
-                .focusable(true)
-        }
-        .padding([.top,.bottom],8)
-        .frame(minWidth: 1100, minHeight: 500)
-        .onAppear {
-            DispatchQueue.main.async {
-                NSApp.keyWindow?.makeFirstResponder(NSApp.keyWindow?.contentView?.subviews.last { $0 is KeyPressHandlingNSView })
+            .padding([.top,.bottom],8)
+            .frame(minWidth: 1100, minHeight: 500)
+            .onAppear {
+                DispatchQueue.main.async {
+                    NSApp.keyWindow?.makeFirstResponder(NSApp.keyWindow?.contentView?.subviews.last { $0 is KeyPressHandlingNSView })
+                }
+            }
+            HStack {
+                Button(action: {
+                    self.showMetadataPanel.toggle()
+                }) {
+                    Image(systemName: showMetadataPanel ? "info.circle.fill" : "info.circle")
+                        .padding()
+                        .accessibilityLabel("Show/Hide Metadata Panel")
+                }
+                
+                // 条件视图，显示选中视频的元数据
+                if showMetadataPanel && selectedPlayerIndex < players.count {
+                    MetadataView(
+                        videoName: videoNames[selectedPlayerIndex],
+                        aspectRatio: videoAspectRatios[selectedPlayerIndex],
+                        duration: players[selectedPlayerIndex].currentItem?.duration ?? CMTime.zero,
+                        audioCodec: "获取音频编码方式",
+                        videoCodec: "获取视频编码方式",
+                        colorMatrix: "获取色彩矩阵信息"
+                    )
+                    .frame(width: 300)
+                    .transition(.slide)
+                }
+                
+                Spacer()
             }
         }
     }
+    
     
     // 文件选择器
     func openVideoFile() {
@@ -175,6 +199,7 @@ struct ContentView: View {
         }
     }
 }
+
 
 extension ContentView {
     
@@ -304,14 +329,6 @@ extension ContentView {
             players[selectedPlayerIndex].play()
         }
     }
-
-    //视频元数据
-    func showMetadata(for index: Int) {
-        // 这里你可以实现显示元数据的逻辑
-        // 例如，你可以创建一个新的视图来展示元数据，并将其推送到导航堆栈中
-        // 由于这里没有完整的上下文，我将只打印出视频名称
-        print("元数据 for \(videoNames[index])")
-    }
     
     func togglePlaybackMode() {
         switch playbackMode {
@@ -351,8 +368,6 @@ extension ContentView {
             players[selectedPlayerIndex].play()
         }
     }
-
-    
 }
 
 // NSViewRepresentable to handle key presses
@@ -387,5 +402,39 @@ class KeyPressHandlingNSView: NSView {
     }
 }
 
+struct MetadataView: View {
+    
+    let videoName: String
+    let aspectRatio: CGSize
+    let duration: CMTime
+    let audioCodec: String
+    let videoCodec: String
+    let colorMatrix: String
 
+    // 将CMTime转换为小时、分钟、秒的格式
+    func formatDuration(_ duration: CMTime) -> String {
+        let totalSeconds = Int(duration.seconds)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+        let hoursString = hours > 0 ? String(format: "%02d小时 ", hours) : ""
+        let minutesString = String(format: "%02d分 ", minutes)
+        let secondsString = String(format: "%02d秒", seconds)
+        return hoursString + minutesString + secondsString
+    }
 
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("视频名称: \(videoName)")
+            Text("视频分辨率: \(Int(aspectRatio.width))x\(Int(aspectRatio.height))")
+            Text("视频时长: \(formatDuration(duration))")
+            Text("音频编码: \(audioCodec)")
+            Text("视频编码: \(videoCodec)")
+            Text("色彩矩阵: \(colorMatrix)")
+        }
+        .padding()
+        .frame(width: 300, height: 200)
+        .navigationTitle("\(videoName)_Metadata")
+    }
+}

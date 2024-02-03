@@ -12,6 +12,7 @@ struct AVPlayerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+            
         }
     }
 }
