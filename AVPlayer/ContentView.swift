@@ -336,6 +336,7 @@ struct ContentView: View {
         let trackSize = naturalSize.applying(preferredTransform)
         let size = CGSize(width: abs(trackSize.width), height: abs(trackSize.height))
         
+        //确保主线程更新
         DispatchQueue.main.async {
             self.videoAspectRatios.append(size)
             self.players.append(player)
@@ -417,23 +418,26 @@ extension ContentView {
     func changePlaybackRate(decrement: Bool) {
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
-            if decrement {
-                // 倒退播放
-                playbackSpeedIndex -= 1
-                if playbackSpeedIndex < 0 {
-                    playbackSpeedIndex = playbackSpeeds.count - 1 // 循环到最大的倒退速度
+            
+            DispatchQueue.main.async {
+                if decrement {
+                    // 倒退播放
+                    self.playbackSpeedIndex -= 1
+                    if self.playbackSpeedIndex < 0 {
+                        self.playbackSpeedIndex = self.playbackSpeeds.count - 1 // 循环到最大的倒退速度
+                    }
+                } else {
+                    // 正向播放
+                    self.playbackSpeedIndex += 1
+                    if self.playbackSpeedIndex >= self.playbackSpeeds.count {
+                        self.playbackSpeedIndex = 0 // 循环回到1倍速
+                    }
                 }
-                currentPlayer.rate = -playbackSpeeds[playbackSpeedIndex]
-            } else {
-                // 正向播放
-                playbackSpeedIndex += 1
-                if playbackSpeedIndex >= playbackSpeeds.count {
-                    playbackSpeedIndex = 0 // 循环回到1倍速
-                }
-                currentPlayer.rate = playbackSpeeds[playbackSpeedIndex]
+                currentPlayer.rate = self.playbackSpeedIndex >= 0 ? self.playbackSpeeds[self.playbackSpeedIndex] : -self.playbackSpeeds[-self.playbackSpeedIndex]
             }
         }
     }
+
     
     //二级菜单选择视频
     func selectVideo(at index: Int) {
