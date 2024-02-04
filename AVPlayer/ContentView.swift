@@ -13,6 +13,7 @@ import CoreMedia
 
 struct ContentView: View {
     
+    //变量定义
     @State private var players: [AVPlayer] = []
     @State private var selectedPlayerIndex: Int = 0
     @State private var videoAspectRatios: [CGSize] = []
@@ -41,6 +42,11 @@ struct ContentView: View {
         var videoFrameRate: Float = 0.0
         var audioBitRate: Int = 0
         var fileSize: Int64 = 0
+        var audioSampleRate: Double = 0.0
+        var videoFormat: String = ""
+        var colorSpace: String = ""
+        var bitDepth: Int = 0
+        var aspectRatio: String = "Unknown"
     }
     
     var body: some View {
@@ -198,7 +204,6 @@ struct ContentView: View {
                 let status = asset.statusOfValue(forKey: key, error: &error)
                 if status == .failed {
                     // Handle the error appropriately
-                    print("Error loading \(key): \(String(describing: error))")
                     allKeysLoaded = false
                     return
                 }
@@ -215,11 +220,53 @@ struct ContentView: View {
                     if let videoTrack = asset.tracks(withMediaType: .video).first {
                         if let formatDescriptions = videoTrack.formatDescriptions as? [CMFormatDescription],
                            let formatDescription = formatDescriptions.first {
+                            
                             // 使用CMFormatDescriptionGetMediaSubType方法获取视频编码类型
                             let mediaSubType = CMFormatDescriptionGetMediaSubType(formatDescription)
+                            
                             metadata.videoCodec = FourCharCodeToString(mediaSubType)
+                            
                             metadata.videoBitRate = Int(videoTrack.estimatedDataRate)
+                            
                             metadata.videoFrameRate = videoTrack.nominalFrameRate
+                            
+                            metadata.videoFormat = url.pathExtension.uppercased()
+                            
+                            // 计算和设置画面比例
+                            let aspectRatioValue = videoTrack.naturalSize.width / videoTrack.naturalSize.height
+                            let aspectRatioFormatted = String(format: "%.2f:1", aspectRatioValue)
+                            switch aspectRatioValue {
+                            case 4.0/3.0:
+                                metadata.aspectRatio = "4:3"
+                            case 16.0/9.0:
+                                metadata.aspectRatio = "16:9"
+                            case 2048/1080:
+                                metadata.aspectRatio = "17:9"
+                            case 2048/858:
+                                metadata.aspectRatio = "2.39:1"
+                            default:
+                                metadata.aspectRatio = aspectRatioFormatted
+                            }
+                            
+                            // 获取色彩空间和位深
+                            if let formatDescriptions = videoTrack.formatDescriptions as? [CMFormatDescription],
+                               let formatDescription = formatDescriptions.first {
+                                
+                                // 获取色彩空间
+                                if let colorAttachments = CMFormatDescriptionGetExtensions(formatDescription) as? [String: AnyObject],
+                                   let colorSpaceProperty = colorAttachments[kCVImageBufferColorPrimariesKey as String] {
+                                    metadata.colorSpace = "\(colorSpaceProperty)"
+                                }
+                                
+                                // 获取视频位深
+                                if let depthAttachments = CMFormatDescriptionGetExtensions(formatDescription) as? [String: AnyObject],
+                                   let bitDepthProperty = depthAttachments["BitsPerComponent"] as? Int {
+                                    metadata.bitDepth = bitDepthProperty
+                                }
+                            }
+                        }
+                        if metadata.bitDepth != 10 && metadata.bitDepth != 12 {
+                            metadata.bitDepth = 8
                         }
                     }
                     
@@ -233,10 +280,26 @@ struct ContentView: View {
                                 // 从streamBasicDescription中获取音频格式信息
                                 metadata.audioBitRate = Int(streamBasicDescription.pointee.mBytesPerPacket * streamBasicDescription.pointee.mFramesPerPacket * 8)
                             }
+                            
                             // 使用CMFormatDescriptionGetMediaSubType方法获取音频编码类型
                             let audioCodecType = CMFormatDescriptionGetMediaSubType(formatDescription)
                             metadata.audioCodec = FourCharCodeToString(audioCodecType)
                         }
+                        
+                        // 获取音频编码格式和采样率
+                        if let formatDescriptions = audioTrack.formatDescriptions as? [CMFormatDescription],
+                           let formatDescription = formatDescriptions.first,
+                           let streamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)?.pointee {
+                            metadata.audioCodec = FourCharCodeToString(CMFormatDescriptionGetMediaSubType(formatDescription))
+                            metadata.audioSampleRate = streamBasicDescription.mSampleRate
+                            
+                            // 计算音频码率，确保转换为相同的类型后再进行乘法操作
+                            let bitsPerChannel = Int(streamBasicDescription.mBitsPerChannel)
+                            let sampleRate = Int(streamBasicDescription.mSampleRate)
+                            let channelsPerFrame = Int(streamBasicDescription.mChannelsPerFrame)
+                            metadata.audioBitRate = bitsPerChannel * sampleRate * channelsPerFrame
+                        }
+                        
                     }
                     
                     // 获取文件大小
@@ -305,8 +368,6 @@ extension ContentView {
             if currentPlayer.timeControlStatus != .playing {
                 currentPlayer.play() // 如果当前状态不是播放，则开始播放
             }
-        } else {
-            print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
     
@@ -319,8 +380,6 @@ extension ContentView {
             if currentPlayer.timeControlStatus != .playing {
                 currentPlayer.play() // 如果当前状态是暂停，则开始播放
             }
-        } else {
-            print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
     
@@ -334,8 +393,6 @@ extension ContentView {
             } else {
                 currentPlayer.pause()
             }
-        } else {
-            print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
     
@@ -359,8 +416,6 @@ extension ContentView {
                 }
                 currentPlayer.rate = playbackSpeeds[playbackSpeedIndex]
             }
-        } else {
-            print("Error: selectedPlayerIndex is out of range for players array.")
         }
     }
     
@@ -467,7 +522,6 @@ class KeyPressHandlingNSView: NSView {
     override var acceptsFirstResponder: Bool { true }
     
     override func keyDown(with event: NSEvent) {
-        print("Key pressed: \(event.characters ?? "")")
         onKeyPress?(event)
     }
     
@@ -496,16 +550,22 @@ struct MetadataView: View {
         return hoursString + minutesString + secondsString
     }
     
-    // 将比特率从bps转换为Mbps并格式化输出
+    // 将视频比特率从bps转换为Mbps并格式化输出
     func formatBitRate(_ bitRate: Int) -> String {
         let bitRateMbps = Double(bitRate) / 1_000_000
         return String(format: "%.2f Mbps", bitRateMbps)
     }
     
-    // 将文件大小从字节转换为MB并格式化输出
+    // 将视频文件大小从字节转换为MB并格式化输出
     func formatFileSize(_ fileSize: Int64) -> String {
         let fileSizeMB = Double(fileSize) / 1_000_000
         return String(format: "%.2f MB", fileSizeMB)
+    }
+    
+    // 将比特率从bps转换为kbps并格式化输出
+    func audioformatBitRate(_ bitRate: Int) -> String {
+        let bitRateKbps = Double(bitRate) / 1_000 // 从bps转换为kbps
+        return String(format: "%.0f kbps", bitRateKbps)
     }
     
     var body: some View {
@@ -513,22 +573,28 @@ struct MetadataView: View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 5) {
                 Text("视频名称: \(videoName)")
+                Text("视频时长: \(formatDuration(duration))")
                 Text("文件大小: \(formatFileSize(metadata.fileSize))")
                 Text("")
-                Text("视频时长: \(formatDuration(duration))")
                 Text("视频分辨率: \(Int(aspectRatio.width))* \(Int(aspectRatio.height))")
+                Text("画面比例: \(metadata.aspectRatio)")
                 Text("视频帧率: \(String(format: "%.3f fps", metadata.videoFrameRate))")
                 Text("视频码率: \(formatBitRate(metadata.videoBitRate))")
                 Text("视频编码: \(metadata.videoCodec.uppercased())")
+                Text("视频位深: \(metadata.bitDepth) bits")
+                Text("色彩空间: \(metadata.colorSpace)")
                 Text("")
                 Text("音频编码: \(metadata.audioCodec.uppercased())")
+                Text("音频采样率: \(String(format: "%.0f Hz", metadata.audioSampleRate))")
+                Text("音频码率: \(audioformatBitRate(metadata.audioBitRate))")
+                
                 Spacer()
             }
             .padding(.leading,5)
-            .padding(.top,80)
+            .padding(.top,75)
         }
         .frame(width: 200)
-        .background(Color.gray.opacity(0.2))
+        .background(Color.gray.opacity(0.6))
         .navigationTitle("\(videoName)_Metadata")
     }
 }
