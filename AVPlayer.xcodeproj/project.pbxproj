@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		580F9A0B2B6E0FDA007E1279 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0A2B6E0FDA007E1279 /* AVKit.framework */; };
+		580F9A0B2B6E0FDA007E1279 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0A2B6E0FDA007E1279 /* AVKit.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		580F9A0D2B6E7892007E1279 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0C2B6E7892007E1279 /* AVFoundation.framework */; };
 		580F9A502B6FB3F1007E1279 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3A2B6FB3F1007E1279 /* CoreGraphics.framework */; };
 		580F9A512B6FB3F1007E1279 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3B2B6FB3F1007E1279 /* CoreFoundation.framework */; };
@@ -383,12 +383,12 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"AVPlayer/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.2.2 By lex.";
+				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.2.3 By lex.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -415,12 +415,12 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"AVPlayer/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.2.2 By lex.";
+				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.2.3 By lex.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
