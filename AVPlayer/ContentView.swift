@@ -35,6 +35,7 @@ struct ContentView: View {
         case random = "随机播放"
     }
     
+    //元数据变量定义
     struct VideoMetadata {
         var audioCodec: String = ""
         var videoCodec: String = ""
@@ -57,6 +58,7 @@ struct ContentView: View {
                 Spacer()
                 
                 VStack {
+                    
                     // 视频播放器部分
                     if !players.isEmpty {
                         VideoPlayer(player: players[selectedPlayerIndex])
@@ -72,6 +74,7 @@ struct ContentView: View {
                 
                 //操作按钮
                 VStack (spacing: 10){
+                    
                     // 添加视频按钮
                     Button("添加视频") {
                         openVideoFile()
@@ -125,7 +128,7 @@ struct ContentView: View {
             
             HStack {
                 
-                // 条件视图，显示选中视频的元数据
+                // 元数据视图
                 if showMetadataPanel && selectedPlayerIndex < players.count {
                     MetadataView(
                         videoName: videoNames[selectedPlayerIndex],
@@ -214,9 +217,11 @@ struct ContentView: View {
                 // 确保在主线程更新 UI
                 DispatchQueue.main.async {
                     self.loadVideoTracks(for: asset, player: player, videoURL: url)
+                    
                     // 创建一个新的VideoMetadata实例
                     var metadata = VideoMetadata()
-                    // 获取视频轨道
+                    
+                    // 获取视频轨道信息
                     if let videoTrack = asset.tracks(withMediaType: .video).first {
                         if let formatDescriptions = videoTrack.formatDescriptions as? [CMFormatDescription],
                            let formatDescription = formatDescriptions.first {
@@ -224,18 +229,24 @@ struct ContentView: View {
                             // 使用CMFormatDescriptionGetMediaSubType方法获取视频编码类型
                             let mediaSubType = CMFormatDescriptionGetMediaSubType(formatDescription)
                             
+                            //获取视频编码
                             metadata.videoCodec = FourCharCodeToString(mediaSubType)
                             
+                            //获取视频码率
                             metadata.videoBitRate = Int(videoTrack.estimatedDataRate)
                             
+                            //获取视频帧率
                             metadata.videoFrameRate = videoTrack.nominalFrameRate
                             
+                            //获取视频封装格式（最后没有显示在元数据列表中，因为观察后缀名就能直观看出。）
                             metadata.videoFormat = url.pathExtension.uppercased()
                             
                             // 计算和设置画面比例
                             let aspectRatioValue = videoTrack.naturalSize.width / videoTrack.naturalSize.height
                             let aspectRatioFormatted = String(format: "%.2f:1", aspectRatioValue)
                             switch aspectRatioValue {
+                            case 1:
+                                metadata.aspectRatio = "1:1"
                             case 4.0/3.0:
                                 metadata.aspectRatio = "4:3"
                             case 16.0/9.0:
@@ -265,13 +276,14 @@ struct ContentView: View {
                                 }
                             }
                         }
+                        //对于无法识别到的都获取为8bit
                         if metadata.bitDepth != 10 && metadata.bitDepth != 12 {
                             metadata.bitDepth = 8
                         }
                     }
                     
                     
-                    // 获取音频轨道
+                    // 获取音频轨道信息
                     if let audioTrack = asset.tracks(withMediaType: .audio).first {
                         if let formatDescriptions = audioTrack.formatDescriptions as? [CMFormatDescription],
                            let formatDescription = formatDescriptions.first {
@@ -290,16 +302,20 @@ struct ContentView: View {
                         if let formatDescriptions = audioTrack.formatDescriptions as? [CMFormatDescription],
                            let formatDescription = formatDescriptions.first,
                            let streamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)?.pointee {
+                            
+                            //获取音频编码
                             metadata.audioCodec = FourCharCodeToString(CMFormatDescriptionGetMediaSubType(formatDescription))
+                            
+                            //获取音频码率
                             metadata.audioSampleRate = streamBasicDescription.mSampleRate
                             
                             // 计算音频码率，确保转换为相同的类型后再进行乘法操作
                             let bitsPerChannel = Int(streamBasicDescription.mBitsPerChannel)
                             let sampleRate = Int(streamBasicDescription.mSampleRate)
                             let channelsPerFrame = Int(streamBasicDescription.mChannelsPerFrame)
+                            //音频比特率计算
                             metadata.audioBitRate = bitsPerChannel * sampleRate * channelsPerFrame
                         }
-                        
                     }
                     
                     // 获取文件大小
@@ -328,7 +344,7 @@ struct ContentView: View {
     }
 }
 
-
+//contentview的方法
 extension ContentView {
     
     // 空格、J、K、L控制播放
@@ -359,6 +375,7 @@ extension ContentView {
         }
     }
     
+    //播放速度控制
     func incrementPlaybackRate(reverse: Bool) {
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
@@ -371,6 +388,7 @@ extension ContentView {
         }
     }
     
+    //重置播放速度
     func setPlaybackRateToOneAndPlay(reverse: Bool) {
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
@@ -383,9 +401,8 @@ extension ContentView {
         }
     }
     
-    //暂停功能
+    //暂停逻辑
     func togglePlayPause() {
-        // 检查 selectedPlayerIndex 是否在 players 数组的范围内
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
             if currentPlayer.rate == 0 {
@@ -398,7 +415,6 @@ extension ContentView {
     
     //加减速循环
     func changePlaybackRate(decrement: Bool) {
-        // 检查 selectedPlayerIndex 是否在 players 数组的范围内
         if selectedPlayerIndex < players.count {
             let currentPlayer = players[selectedPlayerIndex]
             if decrement {
@@ -487,6 +503,7 @@ extension ContentView {
         }
     }
     
+    //将获取的编码定义按照文档转换为编解码器ID
     func FourCharCodeToString(_ code: FourCharCode) -> String {
         let bytes: [CChar] = [
             CChar((code >> 24) & 0xff),
@@ -499,7 +516,7 @@ extension ContentView {
     }
 }
 
-// NSViewRepresentable to handle key presses
+// 承载按键逻辑
 struct KeyPressHandlingView: NSViewRepresentable {
     var onKeyPress: (NSEvent) -> Void
     
@@ -511,11 +528,10 @@ struct KeyPressHandlingView: NSViewRepresentable {
         }
         return view
     }
-    
     func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
-// NSView subclass that can become first responder and handle key presses
+// 确保按键按下时相应
 class KeyPressHandlingNSView: NSView {
     var onKeyPress: ((NSEvent) -> Void)?
     
@@ -524,7 +540,6 @@ class KeyPressHandlingNSView: NSView {
     override func keyDown(with event: NSEvent) {
         onKeyPress?(event)
     }
-    
     override func becomeFirstResponder() -> Bool {
         true
     }
@@ -570,6 +585,7 @@ struct MetadataView: View {
     
     var body: some View {
         
+        //显示元数据文本
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 5) {
                 Text("视频名称: \(videoName)")
@@ -598,3 +614,5 @@ struct MetadataView: View {
         .navigationTitle("\(videoName)_Metadata")
     }
 }
+
+//版本V1.1.5 作者吴坤城
