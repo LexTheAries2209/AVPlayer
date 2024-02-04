@@ -615,4 +615,10 @@ struct MetadataView: View {
     }
 }
 
-//版本V1.1.6 作者吴坤城
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+//版本V1.2.1 作者吴坤城
