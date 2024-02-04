@@ -183,6 +183,7 @@ struct ContentView: View {
         panel.canChooseDirectories = false
         panel.canCreateDirectories = false
         panel.canChooseFiles = true
+        panel.allowedFileTypes = ["mov", "mp4", "m4v", "mp3", "avi"]
         
         if panel.runModal() == .OK {
             if let url = panel.url {
@@ -625,4 +626,4 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-//版本V1.2.1 作者吴坤城
+//版本V1.2.4 作者吴坤城
