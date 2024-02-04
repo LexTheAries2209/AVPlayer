@@ -9,6 +9,27 @@
 /* Begin PBXBuildFile section */
 		580F9A0B2B6E0FDA007E1279 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0A2B6E0FDA007E1279 /* AVKit.framework */; };
 		580F9A0D2B6E7892007E1279 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A0C2B6E7892007E1279 /* AVFoundation.framework */; };
+		580F9A502B6FB3F1007E1279 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3A2B6FB3F1007E1279 /* CoreGraphics.framework */; };
+		580F9A512B6FB3F1007E1279 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3B2B6FB3F1007E1279 /* CoreFoundation.framework */; };
+		580F9A522B6FB3F1007E1279 /* CoreMediaIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3C2B6FB3F1007E1279 /* CoreMediaIO.framework */; };
+		580F9A532B6FB3F1007E1279 /* CoreHaptics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3D2B6FB3F1007E1279 /* CoreHaptics.framework */; };
+		580F9A542B6FB3F1007E1279 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3E2B6FB3F1007E1279 /* CoreAudio.framework */; };
+		580F9A552B6FB3F1007E1279 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A3F2B6FB3F1007E1279 /* CoreLocation.framework */; };
+		580F9A562B6FB3F1007E1279 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A402B6FB3F1007E1279 /* CoreTelephony.framework */; };
+		580F9A572B6FB3F1007E1279 /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A412B6FB3F1007E1279 /* CoreML.framework */; };
+		580F9A592B6FB3F1007E1279 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A432B6FB3F1007E1279 /* CoreMedia.framework */; };
+		580F9A5A2B6FB3F1007E1279 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A442B6FB3F1007E1279 /* CoreText.framework */; };
+		580F9A5B2B6FB3F1007E1279 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A452B6FB3F1007E1279 /* CoreImage.framework */; };
+		580F9A5C2B6FB3F1007E1279 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A462B6FB3F1007E1279 /* CoreBluetooth.framework */; };
+		580F9A5D2B6FB3F1007E1279 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A472B6FB3F1007E1279 /* CoreMIDI.framework */; };
+		580F9A5E2B6FB3F1007E1279 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A482B6FB3F1007E1279 /* CoreVideo.framework */; };
+		580F9A5F2B6FB3F1007E1279 /* CoreTransferable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A492B6FB3F1007E1279 /* CoreTransferable.framework */; };
+		580F9A602B6FB3F1007E1279 /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A4A2B6FB3F1007E1279 /* CoreAudioKit.framework */; };
+		580F9A612B6FB3F1007E1279 /* CoreWLAN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A4B2B6FB3F1007E1279 /* CoreWLAN.framework */; };
+		580F9A622B6FB3F1007E1279 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A4C2B6FB3F1007E1279 /* CoreData.framework */; };
+		580F9A632B6FB3F1007E1279 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A4D2B6FB3F1007E1279 /* CoreMotion.framework */; };
+		580F9A642B6FB3F1007E1279 /* CoreSpotlight.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A4E2B6FB3F1007E1279 /* CoreSpotlight.framework */; };
+		580F9A652B6FB3F1007E1279 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 580F9A4F2B6FB3F1007E1279 /* CoreServices.framework */; };
 		58908EFF2B6A95EB00BFDC5D /* AVPlayerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58908EFE2B6A95EB00BFDC5D /* AVPlayerApp.swift */; };
 		58908F012B6A95EB00BFDC5D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58908F002B6A95EB00BFDC5D /* ContentView.swift */; };
 		58908F032B6A95EC00BFDC5D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58908F022B6A95EC00BFDC5D /* Assets.xcassets */; };
@@ -18,6 +39,27 @@
 /* Begin PBXFileReference section */
 		580F9A0A2B6E0FDA007E1279 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		580F9A0C2B6E7892007E1279 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		580F9A3A2B6FB3F1007E1279 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		580F9A3B2B6FB3F1007E1279 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		580F9A3C2B6FB3F1007E1279 /* CoreMediaIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMediaIO.framework; path = System/Library/Frameworks/CoreMediaIO.framework; sourceTree = SDKROOT; };
+		580F9A3D2B6FB3F1007E1279 /* CoreHaptics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreHaptics.framework; path = System/Library/Frameworks/CoreHaptics.framework; sourceTree = SDKROOT; };
+		580F9A3E2B6FB3F1007E1279 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		580F9A3F2B6FB3F1007E1279 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		580F9A402B6FB3F1007E1279 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		580F9A412B6FB3F1007E1279 /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
+		580F9A432B6FB3F1007E1279 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		580F9A442B6FB3F1007E1279 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		580F9A452B6FB3F1007E1279 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		580F9A462B6FB3F1007E1279 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		580F9A472B6FB3F1007E1279 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		580F9A482B6FB3F1007E1279 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		580F9A492B6FB3F1007E1279 /* CoreTransferable.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTransferable.framework; path = System/Library/Frameworks/CoreTransferable.framework; sourceTree = SDKROOT; };
+		580F9A4A2B6FB3F1007E1279 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = System/Library/Frameworks/CoreAudioKit.framework; sourceTree = SDKROOT; };
+		580F9A4B2B6FB3F1007E1279 /* CoreWLAN.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreWLAN.framework; path = System/Library/Frameworks/CoreWLAN.framework; sourceTree = SDKROOT; };
+		580F9A4C2B6FB3F1007E1279 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		580F9A4D2B6FB3F1007E1279 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		580F9A4E2B6FB3F1007E1279 /* CoreSpotlight.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreSpotlight.framework; path = System/Library/Frameworks/CoreSpotlight.framework; sourceTree = SDKROOT; };
+		580F9A4F2B6FB3F1007E1279 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		58908EFB2B6A95EB00BFDC5D /* AVPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58908EFE2B6A95EB00BFDC5D /* AVPlayerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerApp.swift; sourceTree = "<group>"; };
 		58908F002B6A95EB00BFDC5D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -31,6 +73,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				580F9A502B6FB3F1007E1279 /* CoreGraphics.framework in Frameworks */,
+				580F9A512B6FB3F1007E1279 /* CoreFoundation.framework in Frameworks */,
+				580F9A522B6FB3F1007E1279 /* CoreMediaIO.framework in Frameworks */,
+				580F9A532B6FB3F1007E1279 /* CoreHaptics.framework in Frameworks */,
+				580F9A542B6FB3F1007E1279 /* CoreAudio.framework in Frameworks */,
+				580F9A552B6FB3F1007E1279 /* CoreLocation.framework in Frameworks */,
+				580F9A562B6FB3F1007E1279 /* CoreTelephony.framework in Frameworks */,
+				580F9A572B6FB3F1007E1279 /* CoreML.framework in Frameworks */,
+				580F9A592B6FB3F1007E1279 /* CoreMedia.framework in Frameworks */,
+				580F9A5A2B6FB3F1007E1279 /* CoreText.framework in Frameworks */,
+				580F9A5B2B6FB3F1007E1279 /* CoreImage.framework in Frameworks */,
+				580F9A5C2B6FB3F1007E1279 /* CoreBluetooth.framework in Frameworks */,
+				580F9A5D2B6FB3F1007E1279 /* CoreMIDI.framework in Frameworks */,
+				580F9A5E2B6FB3F1007E1279 /* CoreVideo.framework in Frameworks */,
+				580F9A5F2B6FB3F1007E1279 /* CoreTransferable.framework in Frameworks */,
+				580F9A602B6FB3F1007E1279 /* CoreAudioKit.framework in Frameworks */,
+				580F9A612B6FB3F1007E1279 /* CoreWLAN.framework in Frameworks */,
+				580F9A622B6FB3F1007E1279 /* CoreData.framework in Frameworks */,
+				580F9A632B6FB3F1007E1279 /* CoreMotion.framework in Frameworks */,
+				580F9A642B6FB3F1007E1279 /* CoreSpotlight.framework in Frameworks */,
+				580F9A652B6FB3F1007E1279 /* CoreServices.framework in Frameworks */,
 				580F9A0D2B6E7892007E1279 /* AVFoundation.framework in Frameworks */,
 				580F9A0B2B6E0FDA007E1279 /* AVKit.framework in Frameworks */,
 			);
@@ -42,6 +105,27 @@
 		580F9A092B6E0FDA007E1279 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				580F9A3E2B6FB3F1007E1279 /* CoreAudio.framework */,
+				580F9A4A2B6FB3F1007E1279 /* CoreAudioKit.framework */,
+				580F9A462B6FB3F1007E1279 /* CoreBluetooth.framework */,
+				580F9A4C2B6FB3F1007E1279 /* CoreData.framework */,
+				580F9A3B2B6FB3F1007E1279 /* CoreFoundation.framework */,
+				580F9A3A2B6FB3F1007E1279 /* CoreGraphics.framework */,
+				580F9A3D2B6FB3F1007E1279 /* CoreHaptics.framework */,
+				580F9A452B6FB3F1007E1279 /* CoreImage.framework */,
+				580F9A3F2B6FB3F1007E1279 /* CoreLocation.framework */,
+				580F9A432B6FB3F1007E1279 /* CoreMedia.framework */,
+				580F9A3C2B6FB3F1007E1279 /* CoreMediaIO.framework */,
+				580F9A472B6FB3F1007E1279 /* CoreMIDI.framework */,
+				580F9A412B6FB3F1007E1279 /* CoreML.framework */,
+				580F9A4D2B6FB3F1007E1279 /* CoreMotion.framework */,
+				580F9A4F2B6FB3F1007E1279 /* CoreServices.framework */,
+				580F9A4E2B6FB3F1007E1279 /* CoreSpotlight.framework */,
+				580F9A402B6FB3F1007E1279 /* CoreTelephony.framework */,
+				580F9A442B6FB3F1007E1279 /* CoreText.framework */,
+				580F9A492B6FB3F1007E1279 /* CoreTransferable.framework */,
+				580F9A482B6FB3F1007E1279 /* CoreVideo.framework */,
+				580F9A4B2B6FB3F1007E1279 /* CoreWLAN.framework */,
 				580F9A0C2B6E7892007E1279 /* AVFoundation.framework */,
 				580F9A0A2B6E0FDA007E1279 /* AVKit.framework */,
 			);
@@ -291,12 +375,12 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"AVPlayer/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.1.5";
+				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.1.6 By lex.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -323,12 +407,12 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "\"AVPlayer/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.1.5";
+				INFOPLIST_KEY_CFBundleDisplayName = "VideoPlayer V1.1.6 By lex.";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.video";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
